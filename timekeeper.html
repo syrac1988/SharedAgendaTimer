@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,17 +8,12 @@
     body { font-family: sans-serif; background: #0b0f14; color: #eee; margin: 0; padding: 20px; }
     h1 { text-align: center; margin-bottom: 10px; }
     h2 { text-align: center; margin-top: 0; font-weight: normal; color: #ccc; }
-    .timer { background: #121821; border: 1px solid #1e2734; border-radius: 12px; padding: 15px; margin: 10px 0; transition: all 0.3s ease; }
-    .timer-header { display: flex; justify-content: space-between; align-items: center; }
+    .timer { background: #121821; border: 2px solid #1e2734; border-radius: 12px; padding: 15px; margin: 10px 0; transition: border-color 0.3s ease; }
     .title { font-weight: bold; font-size: 18px; }
     .time { font-size: 22px; font-variant-numeric: tabular-nums; }
-    .duration { font-size: 16px; color: #aaa; margin-left: 20px; white-space: nowrap; }
+    .done { opacity: 0.6; }
     .progress { height: 8px; border-radius: 4px; margin-top: 10px; background: #333; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: green; transition: width 1s linear, background-color 0.5s linear; }
-    .done { opacity: 0.6; }
-    .active { color: #6be675; border-color: #6be675; }
-    .active .title { font-size: 22px; }
-    .active .time { font-size: 28px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -27,19 +22,19 @@
   <div id="timers"></div>
 
   <script>
-    // URL parameter ?src=<json-url>
+    // URL-Parameter ?src=<json-url>
     async function loadAgenda() {
       const params = new URLSearchParams(window.location.search);
       const src = params.get("src");
       if (!src) {
-        document.getElementById("timers").textContent = "No agenda source provided (?src=...)";
+        document.getElementById("timers").textContent = "Keine Agenda-Quelle angegeben (?src=...)";
         return null;
       }
       try {
         const res = await fetch(src);
         return await res.json();
       } catch (e) {
-        document.getElementById("timers").textContent = "Error loading agenda.";
+        document.getElementById("timers").textContent = "Fehler beim Laden der Agenda.";
         console.error(e);
         return null;
       }
@@ -49,27 +44,22 @@
       const container = document.getElementById("timers");
       container.innerHTML = "";
 
-      // Set title
-      document.getElementById("presTitle").textContent = title || "SyncAgenda";
+      // Titel setzen
+      document.getElementById("presTitle").textContent = title || "Agenda Timer";
       document.getElementById("presSubtitle").textContent = startTime.toLocaleString();
 
       slots.forEach((slot, i) => {
         const el = document.createElement("div");
         el.className = "timer";
         el.innerHTML = `
-          <div class=\"timer-header\">
-            <div>
-              <div class=\"title\">${slot.title}</div>
-              <div class=\"time\" id=\"t${i}\"></div>
-            </div>
-            <div class=\"duration\">${slot.minutes} min</div>
-          </div>
-          <div class=\"progress\"><div class=\"progress-bar\" id=\"p${i}\"></div></div>
+          <div class="title">${slot.title}</div>
+          <div class="time" id="t${i}"></div>
+          <div class="progress"><div class="progress-bar" id="p${i}"></div></div>
         `;
         container.appendChild(el);
       });
 
-      // Calculate times
+      // Endzeiten berechnen
       let times = [];
       let t = new Date(startTime);
       slots.forEach(slot => {
@@ -81,40 +71,41 @@
       function update() {
         const now = new Date();
         times.forEach((slot, i) => {
-          const timerEl = document.getElementById("t"+i);
-          const parent = timerEl.closest(".timer");
+          const el = document.getElementById("t"+i);
+          const parent = el.closest(".timer");
           const bar = document.getElementById("p"+i);
-          parent.classList.remove("active");
 
           if (now < slot.start) {
             const diff = Math.round((slot.start - now)/1000);
-            timerEl.textContent = "Starts in " + format(diff);
+            el.textContent = "Startet in " + format(diff);
             bar.style.width = "0%";
             bar.style.backgroundColor = "green";
+            parent.style.borderColor = "#1e2734";
           } else if (now >= slot.start && now < slot.end) {
             const total = (slot.end - slot.start);
             const elapsed = (now - slot.start);
             const remainingSec = Math.round((slot.end - now)/1000);
             const percent = (elapsed / total) * 100;
-            timerEl.textContent = format(remainingSec);
-            parent.classList.remove("done");
-            parent.classList.add("active");
+            el.textContent = format(remainingSec);
             bar.style.width = percent + "%";
 
-            // Color logic: green normally, yellow last 3 min, red last 1 min
+            // Farbwechsel
             if (remainingSec <= 60) {
               bar.style.backgroundColor = "red";
+              parent.style.borderColor = "red";
             } else if (remainingSec <= 180) {
               bar.style.backgroundColor = "yellow";
+              parent.style.borderColor = "yellow";
             } else {
               bar.style.backgroundColor = "green";
+              parent.style.borderColor = "green";
             }
-
           } else {
-            timerEl.textContent = "Finished";
+            el.textContent = "Fertig";
             parent.classList.add("done");
             bar.style.width = "100%";
-            bar.style.backgroundColor = "green"; // reset to green after finish
+            bar.style.backgroundColor = "#333"; // neutral
+            parent.style.borderColor = "#1e2734"; // neutral
           }
         });
       }
