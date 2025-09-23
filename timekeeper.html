@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agenda Timer</title>
+  <style>
+    body { font-family: sans-serif; background: #0b0f14; color: #eee; margin: 0; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 10px; }
+    h2 { text-align: center; margin-top: 0; font-weight: normal; color: #ccc; }
+    .timer { background: #121821; border: 1px solid #1e2734; border-radius: 12px; padding: 15px; margin: 10px 0; }
+    .title { font-weight: bold; font-size: 18px; }
+    .time { font-size: 22px; font-variant-numeric: tabular-nums; }
+    .done { opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <h1 id="presTitle">Agenda Timer</h1>
+  <h2 id="presSubtitle"></h2>
+  <div id="timers"></div>
+
+  <script>
+    // URL-Parameter ?src=<json-url>
+    async function loadAgenda() {
+      const params = new URLSearchParams(window.location.search);
+      const src = params.get("src");
+      if (!src) {
+        document.getElementById("timers").textContent = "Keine Agenda-Quelle angegeben (?src=...)";
+        return null;
+      }
+      try {
+        const res = await fetch(src);
+        return await res.json();
+      } catch (e) {
+        document.getElementById("timers").textContent = "Fehler beim Laden der Agenda.";
+        console.error(e);
+        return null;
+      }
+    }
+
+    function renderAgenda(title, startTime, slots) {
+      const container = document.getElementById("timers");
+      container.innerHTML = "";
+
+      // Titel setzen
+      document.getElementById("presTitle").textContent = title || "Agenda Timer";
+      document.getElementById("presSubtitle").textContent = startTime.toLocaleString();
+
+      slots.forEach((slot, i) => {
+        const el = document.createElement("div");
+        el.className = "timer";
+        el.innerHTML = `<div class=\"title\">${slot.title}</div><div class=\"time\" id=\"t${i}\"></div>`;
+        container.appendChild(el);
+      });
+
+      // Endzeiten berechnen
+      let times = [];
+      let t = new Date(startTime);
+      slots.forEach(slot => {
+        let end = new Date(t.getTime() + slot.minutes * 60000);
+        times.push({ start: new Date(t), end, title: slot.title });
+        t = end;
+      });
+
+      function update() {
+        const now = new Date();
+        times.forEach((slot, i) => {
+          const el = document.getElementById("t"+i);
+          if (!el) return;
+          if (now < slot.start) {
+            const diff = Math.round((slot.start - now)/1000);
+            el.textContent = "Startet in " + format(diff);
+          } else if (now >= slot.start && now < slot.end) {
+            const diff = Math.round((slot.end - now)/1000);
+            el.textContent = format(diff);
+            el.parentElement.classList.remove("done");
+          } else {
+            el.textContent = "Fertig";
+            el.parentElement.classList.add("done");
+          }
+        });
+      }
+
+      function format(sec) {
+        const m = Math.floor(sec/60);
+        const s = sec % 60;
+        return m+":"+(s<10?"0":"")+s;
+      }
+
+      update();
+      setInterval(update,1000);
+    }
+
+    (async () => {
+      const agenda = await loadAgenda();
+      if (agenda) {
+        const startTime = new Date(agenda.startTime);
+        renderAgenda(agenda.title, startTime, agenda.slots);
+      }
+    })();
+  </script>
+</body>
+</html>

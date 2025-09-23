@@ -1,0 +1,17 @@
+{
+  "title": "Projekt Kickoff Meeting",
+  "startTime": "2025-09-23T14:00:00",
+  "slots": [
+    { "title": "Welcome & Introduction (Wadim)", "minutes": 8 },
+    { "title": "Agenda (Flo)", "minutes": 2 },
+    { "title": "High-level overview (Dirk & Ron) - TE Capabilitys - Splunk Capabilitys - Key defferentiators USP", "minutes": 15 },
+    { "title": "Demo Introduction (Flo)", "minutes": 10 },
+    { "title": "ThousandEyes Demo (Juan)", "minutes": 25 },
+    { "title": "Cisco Catalyst Demo (Paul)", "minutes": 10 },
+    { "title": "Splunk Demo (Dirk)", "minutes": 10 },
+    { "title": "PS - Impementation & Timelines (Badr)", "minutes": 7 },
+    { "title": "EDU - Training & Support (Marta)", "minutes": 3 },
+    { "title": "Next Step & Closing", "minutes": 15 }
+  ]
+}
+
