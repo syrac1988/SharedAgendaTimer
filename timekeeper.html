@@ -14,6 +14,16 @@
     .done { opacity: 0.6; }
     .progress { height: 8px; border-radius: 4px; margin-top: 10px; background: #333; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: green; transition: width 1s linear, background-color 0.5s linear; }
+
+    /* Blink animation for red border */
+    @keyframes blinkRed {
+      0%   { border-color: red; }
+      50%  { border-color: #1e2734; }
+      100% { border-color: red; }
+    }
+    .blinking {
+      animation: blinkRed 1s step-start infinite;
+    }
   </style>
 </head>
 <body>
@@ -75,6 +85,8 @@
           const parent = el.closest(".timer");
           const bar = document.getElementById("p"+i);
 
+          parent.classList.remove("blinking"); // reset blink
+
           if (now < slot.start) {
             const diff = Math.round((slot.start - now)/1000);
             el.textContent = "Starts in " + format(diff);
@@ -90,7 +102,10 @@
             bar.style.width = percent + "%";
 
             // Color logic
-            if (remainingSec <= 60) {
+            if (remainingSec <= 5) {
+              bar.style.backgroundColor = "red";
+              parent.classList.add("blinking");
+            } else if (remainingSec <= 60) {
               bar.style.backgroundColor = "red";
               parent.style.borderColor = "red";
             } else if (remainingSec <= 180) {
