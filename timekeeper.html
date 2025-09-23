@@ -14,7 +14,7 @@
     .time { font-size: 22px; font-variant-numeric: tabular-nums; }
     .duration { font-size: 16px; color: #aaa; margin-left: 20px; white-space: nowrap; }
     .progress { height: 8px; border-radius: 4px; margin-top: 10px; background: #333; overflow: hidden; }
-    .progress-bar { height: 100%; width: 0%; background: green; transition: width 1s linear, background-color 1s linear; }
+    .progress-bar { height: 100%; width: 0%; background: green; transition: width 1s linear, background-color 0.5s linear; }
     .done { opacity: 0.6; }
     .active { color: #6be675; border-color: #6be675; }
     .active .title { font-size: 22px; }
@@ -94,22 +94,27 @@
           } else if (now >= slot.start && now < slot.end) {
             const total = (slot.end - slot.start);
             const elapsed = (now - slot.start);
+            const remainingSec = Math.round((slot.end - now)/1000);
             const percent = (elapsed / total) * 100;
-            timerEl.textContent = format(Math.round((slot.end - now)/1000));
+            timerEl.textContent = format(remainingSec);
             parent.classList.remove("done");
             parent.classList.add("active");
             bar.style.width = percent + "%";
-            // interpolate color from green to red
-            const ratio = elapsed / total;
-            const r = Math.floor(107 + (255-107)*ratio); // 107 -> 255
-            const g = Math.floor(230 - (230-93)*ratio);  // 230 -> 93
-            const b = Math.floor(117 - (117-93)*ratio);  // 117 -> 93 (slight adjust)
-            bar.style.backgroundColor = `rgb(${r},${g},${b})`;
+
+            // Color logic: green normally, yellow last 3 min, red last 1 min
+            if (remainingSec <= 60) {
+              bar.style.backgroundColor = "red";
+            } else if (remainingSec <= 180) {
+              bar.style.backgroundColor = "yellow";
+            } else {
+              bar.style.backgroundColor = "green";
+            }
+
           } else {
             timerEl.textContent = "Finished";
             parent.classList.add("done");
             bar.style.width = "100%";
-            bar.style.backgroundColor = "red";
+            bar.style.backgroundColor = "green"; // reset to green after finish
           }
         });
       }
