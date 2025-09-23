@@ -8,9 +8,10 @@
     body { font-family: sans-serif; background: #0b0f14; color: #eee; margin: 0; padding: 20px; }
     h1 { text-align: center; margin-bottom: 10px; }
     h2 { text-align: center; margin-top: 0; font-weight: normal; color: #ccc; }
-    .timer { background: #121821; border: 1px solid #1e2734; border-radius: 12px; padding: 15px; margin: 10px 0; transition: all 0.3s ease; }
+    .timer { background: #121821; border: 1px solid #1e2734; border-radius: 12px; padding: 15px; margin: 10px 0; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
     .title { font-weight: bold; font-size: 18px; }
     .time { font-size: 22px; font-variant-numeric: tabular-nums; }
+    .duration { font-size: 16px; color: #aaa; margin-left: 20px; white-space: nowrap; }
     .done { opacity: 0.6; }
     .active { color: #6be675; border-color: #6be675; }
     .active .title { font-size: 22px; }
@@ -52,7 +53,7 @@
       slots.forEach((slot, i) => {
         const el = document.createElement("div");
         el.className = "timer";
-        el.innerHTML = `<div class=\"title\">${slot.title}</div><div class=\"time\" id=\"t${i}\"></div>`;
+        el.innerHTML = `<div><div class=\"title\">${slot.title}</div><div class=\"time\" id=\"t${i}\"></div></div><div class=\"duration\">${slot.minutes} min</div>`;
         container.appendChild(el);
       });
 
@@ -69,7 +70,7 @@
         const now = new Date();
         times.forEach((slot, i) => {
           const timerEl = document.getElementById("t"+i);
-          const parent = timerEl.parentElement;
+          const parent = timerEl.closest(".timer");
           parent.classList.remove("active");
 
           if (now < slot.start) {
