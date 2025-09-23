@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,19 +22,19 @@
   <div id="timers"></div>
 
   <script>
-    // URL-Parameter ?src=<json-url>
+    // URL parameter ?src=<json-url>
     async function loadAgenda() {
       const params = new URLSearchParams(window.location.search);
       const src = params.get("src");
       if (!src) {
-        document.getElementById("timers").textContent = "Keine Agenda-Quelle angegeben (?src=...)";
+        document.getElementById("timers").textContent = "No agenda source provided (?src=...)";
         return null;
       }
       try {
         const res = await fetch(src);
         return await res.json();
       } catch (e) {
-        document.getElementById("timers").textContent = "Fehler beim Laden der Agenda.";
+        document.getElementById("timers").textContent = "Error loading agenda.";
         console.error(e);
         return null;
       }
@@ -44,7 +44,7 @@
       const container = document.getElementById("timers");
       container.innerHTML = "";
 
-      // Titel setzen
+      // Set title
       document.getElementById("presTitle").textContent = title || "Agenda Timer";
       document.getElementById("presSubtitle").textContent = startTime.toLocaleString();
 
@@ -59,7 +59,7 @@
         container.appendChild(el);
       });
 
-      // Endzeiten berechnen
+      // Calculate times
       let times = [];
       let t = new Date(startTime);
       slots.forEach(slot => {
@@ -77,7 +77,7 @@
 
           if (now < slot.start) {
             const diff = Math.round((slot.start - now)/1000);
-            el.textContent = "Startet in " + format(diff);
+            el.textContent = "Starts in " + format(diff);
             bar.style.width = "0%";
             bar.style.backgroundColor = "green";
             parent.style.borderColor = "#1e2734";
@@ -89,7 +89,7 @@
             el.textContent = format(remainingSec);
             bar.style.width = percent + "%";
 
-            // Farbwechsel
+            // Color logic
             if (remainingSec <= 60) {
               bar.style.backgroundColor = "red";
               parent.style.borderColor = "red";
@@ -101,7 +101,7 @@
               parent.style.borderColor = "green";
             }
           } else {
-            el.textContent = "Fertig";
+            el.textContent = "Finished";
             parent.classList.add("done");
             bar.style.width = "100%";
             bar.style.backgroundColor = "#333"; // neutral
