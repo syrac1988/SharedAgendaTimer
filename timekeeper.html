@@ -8,10 +8,13 @@
     body { font-family: sans-serif; background: #0b0f14; color: #eee; margin: 0; padding: 20px; }
     h1 { text-align: center; margin-bottom: 10px; }
     h2 { text-align: center; margin-top: 0; font-weight: normal; color: #ccc; }
-    .timer { background: #121821; border: 1px solid #1e2734; border-radius: 12px; padding: 15px; margin: 10px 0; transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center; }
+    .timer { background: #121821; border: 1px solid #1e2734; border-radius: 12px; padding: 15px; margin: 10px 0; transition: all 0.3s ease; }
+    .timer-header { display: flex; justify-content: space-between; align-items: center; }
     .title { font-weight: bold; font-size: 18px; }
     .time { font-size: 22px; font-variant-numeric: tabular-nums; }
     .duration { font-size: 16px; color: #aaa; margin-left: 20px; white-space: nowrap; }
+    .progress { height: 8px; border-radius: 4px; margin-top: 10px; background: #333; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0%; background: green; transition: width 1s linear, background-color 1s linear; }
     .done { opacity: 0.6; }
     .active { color: #6be675; border-color: #6be675; }
     .active .title { font-size: 22px; }
@@ -53,7 +56,16 @@
       slots.forEach((slot, i) => {
         const el = document.createElement("div");
         el.className = "timer";
-        el.innerHTML = `<div><div class=\"title\">${slot.title}</div><div class=\"time\" id=\"t${i}\"></div></div><div class=\"duration\">${slot.minutes} min</div>`;
+        el.innerHTML = `
+          <div class=\"timer-header\">
+            <div>
+              <div class=\"title\">${slot.title}</div>
+              <div class=\"time\" id=\"t${i}\"></div>
+            </div>
+            <div class=\"duration\">${slot.minutes} min</div>
+          </div>
+          <div class=\"progress\"><div class=\"progress-bar\" id=\"p${i}\"></div></div>
+        `;
         container.appendChild(el);
       });
 
@@ -62,7 +74,7 @@
       let t = new Date(startTime);
       slots.forEach(slot => {
         let end = new Date(t.getTime() + slot.minutes * 60000);
-        times.push({ start: new Date(t), end, title: slot.title });
+        times.push({ start: new Date(t), end, title: slot.title, minutes: slot.minutes });
         t = end;
       });
 
@@ -71,19 +83,33 @@
         times.forEach((slot, i) => {
           const timerEl = document.getElementById("t"+i);
           const parent = timerEl.closest(".timer");
+          const bar = document.getElementById("p"+i);
           parent.classList.remove("active");
 
           if (now < slot.start) {
             const diff = Math.round((slot.start - now)/1000);
             timerEl.textContent = "Starts in " + format(diff);
+            bar.style.width = "0%";
+            bar.style.backgroundColor = "green";
           } else if (now >= slot.start && now < slot.end) {
-            const diff = Math.round((slot.end - now)/1000);
-            timerEl.textContent = format(diff);
+            const total = (slot.end - slot.start);
+            const elapsed = (now - slot.start);
+            const percent = (elapsed / total) * 100;
+            timerEl.textContent = format(Math.round((slot.end - now)/1000));
             parent.classList.remove("done");
             parent.classList.add("active");
+            bar.style.width = percent + "%";
+            // interpolate color from green to red
+            const ratio = elapsed / total;
+            const r = Math.floor(107 + (255-107)*ratio); // 107 -> 255
+            const g = Math.floor(230 - (230-93)*ratio);  // 230 -> 93
+            const b = Math.floor(117 - (117-93)*ratio);  // 117 -> 93 (slight adjust)
+            bar.style.backgroundColor = `rgb(${r},${g},${b})`;
           } else {
             timerEl.textContent = "Finished";
             parent.classList.add("done");
+            bar.style.width = "100%";
+            bar.style.backgroundColor = "red";
           }
         });
       }
