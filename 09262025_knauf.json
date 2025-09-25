@@ -4,7 +4,7 @@
   "slots": [
     { "title": "Welcome & Introduction (Wadim)", "minutes": 8 },
     { "title": "Agenda (Flo)", "minutes": 2 },
-    { "title": "High-level overview (Ron & Juan?) - TE Capabilitys - Splunk Capabilitys - Key defferentiators USP", "minutes": 15 },
+    { "title": "High-level overview (Ron & Martin) - TE Capabilitys - Splunk Capabilitys - Key defferentiators USP", "minutes": 15 },
     { "title": "Demo Introduction (Ron)", "minutes": 5 },
     { "title": "ThousandEyes Demo (Juan)", "minutes": 25 },
     { "title": "Cisco Catalyst Demo (Paul)", "minutes": 10 },
@@ -14,6 +14,7 @@
     { "title": "Next Step & Closing", "minutes": 15 }
   ]
 }
+
 
 
 
